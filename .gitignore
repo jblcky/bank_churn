@@ -1,0 +1,82 @@
+# -----------------
+# Python
+# -----------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.ipynb_checkpoints
+
+# -----------------
+# Jupyter & notebooks
+# -----------------
+*.ipynb_checkpoints
+jupyter_notebook_config.py
+.notebook
+
+# -----------------
+# Data files (don’t upload large datasets to GitHub)
+# -----------------
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.parquet
+*.h5
+*.db
+*.sqlite
+
+data/
+!data/.gitkeep   # keep empty folders tracked
+
+# -----------------
+# Logs & outputs
+# -----------------
+*.log
+logs/
+*.out
+*.err
+
+# -----------------
+# Models & checkpoints
+# -----------------
+# models/
+# *.h5
+# *.pkl
+# *.joblib
+# *.ckpt
+
+# -----------------
+# OS files
+# -----------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -----------------
+# IDE settings
+# -----------------
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# -----------------
+# Reports / Figures
+# -----------------
+reports/figures/*
+!reports/.gitkeep
