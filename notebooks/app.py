@@ -7,7 +7,7 @@ import numpy as np
 # Load model & scaler
 # =========================
 model = joblib.load("notebooks/log_reg_model_17-9-2025.pkl")       # Logistic Regression
-scaler = joblib.load("notebooks/scaler.pkl")            # StandardScaler (if used)
+scaler = joblib.load("notebooks/scaler_19-9-2025.pkl")            # StandardScaler (if used)
 
 # =========================
 # App Config
