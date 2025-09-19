@@ -3,7 +3,6 @@ import pandas as pd
 import joblib
 import numpy as np
 import random
-import matplotlib.pyplot as plt
 import shap
 
 # =========================
@@ -101,7 +100,7 @@ features_scaled = features.copy()
 features_scaled[:, scale_cols] = scaler.transform(features_scaled[:, scale_cols])
 
 # =========================
-# Predict and Explain
+# Predict and Display
 # =========================
 if st.sidebar.button("Predict Churn"):
     prob = model.predict_proba(features_scaled)[:,1][0]
@@ -115,24 +114,22 @@ if st.sidebar.button("Predict Churn"):
     else:
         st.success("✅ Customer is **not likely to churn**.")
 
-    st.progress(float(prob))
+    # =========================
+    # Simple HTML/CSS gauge
+    # =========================
+    st.write("### Probability Gauge")
+    gauge_color = "#ff4d4d" if prob > 0.5 else "#4caf50"
+    st.write(f"""
+        <div style="width:100%; background:#eee; border-radius:20px; height:30px;">
+          <div style="width:{prob*100}%; background:{gauge_color};
+                      height:30px; border-radius:20px; text-align:center; color:white;">
+            {prob*100:.1f}%
+          </div>
+        </div>
+    """, unsafe_allow_html=True)
 
     # =========================
-    # Matplotlib horizontal gauge
-    # =========================
-    fig, ax = plt.subplots(figsize=(8,1.2))
-    ax.barh([0], [prob], color="#ff4d4d" if prob>0.5 else "#4caf50")
-    ax.set_xlim(0,1)
-    ax.set_yticks([])
-    ax.set_xlabel("Churn Probability")
-    ax.set_title("Churn Probability Gauge")
-    for i, v in enumerate([prob]):
-        ax.text(v + 0.02, i, f"{v:.2%}", color='black', va='center')
-    st.pyplot(fig)
-    plt.clf()
-
-    # =========================
-    # SHAP Explanation
+    # SHAP feature contribution
     # =========================
     st.subheader("🔍 Feature Contribution (SHAP)")
     explainer = shap.LinearExplainer(model, features_scaled, feature_perturbation="correlation")
@@ -152,10 +149,15 @@ if st.sidebar.button("Predict Churn"):
         "SHAP Value": shap_vals_single
     }).sort_values(by="SHAP Value", key=abs, ascending=False)
 
-    fig2, ax2 = plt.subplots(figsize=(8,6))
-    ax2.barh(shap_contrib["Feature"], shap_contrib["SHAP Value"], color=['#ff4d4d' if x>0 else '#4caf50' for x in shap_contrib["SHAP Value"]])
-    ax2.set_xlabel("SHAP Value")
-    ax2.set_title("Feature Contribution to Churn Probability")
-    ax2.invert_yaxis()
-    st.pyplot(fig2)
-    plt.clf()
+    # Display SHAP as colored bars using HTML
+    for _, row in shap_contrib.iterrows():
+        color = "#ff4d4d" if row["SHAP Value"] > 0 else "#4caf50"
+        width = min(abs(row["SHAP Value"])*100, 100)  # scale to 0-100%
+        st.write(f"""
+            <div style="margin:2px 0;">
+                <strong>{row['Feature']}</strong>
+                <div style="width:{width}%; background:{color}; color:white; padding:4px; border-radius:5px;">
+                    {row['SHAP Value']:.4f}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
