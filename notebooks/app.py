@@ -124,7 +124,7 @@ def preprocess_features(inputs, scaler_obj):
     # Create a feature dictionary that matches the model's training order
     feature_dict = {
         'CreditScore': inputs['credit_score'],
-        'Gender': 1 if inputs['gender'] == "Male" else 0,
+        'Gender': 0 if inputs['gender'] == "Male" else 1,
         'Age': inputs['age'],
         'Tenure': inputs['tenure'],
         'TenureGroup': tenure_group_val,
