@@ -95,7 +95,7 @@ def get_sidebar_inputs():
         "complain": st.sidebar.selectbox("Has Complained?", ["No", "Yes"]),
         "satisfaction": st.sidebar.slider("Satisfaction Score", 1, 5, st.session_state.satisfaction),
         "points": st.sidebar.number_input("Points Earned", 0, 20000, st.session_state.points),
-        "card_type": st.sidebar.selectbox("Card Type", ["Silver", "Gold", "Platinum"]),
+        "card_type": st.sidebar.selectbox("Card Type", ["Silver", "Gold", "Platinum", "Diamond"]),
         "engagement": st.sidebar.slider("Engagement Score", 0, 10, st.session_state.engagement),
     }
     return inputs
@@ -109,8 +109,17 @@ def preprocess_features(inputs, scaler_obj):
     inputs['balance_per_product'] = inputs['balance'] / max(inputs['num_products'], 1)
     inputs['balance_to_salary_ratio'] = inputs['balance'] / max(inputs['salary'], 1)
 
+    # --- New Feature: Tenure Group ---
+    tenure = inputs['tenure']
+    if tenure <= 3:
+        tenure_group_val = 1  # Short: 0-3 years
+    elif 4 <= tenure <= 7:
+        tenure_group_val = 2  # Mid: 4-7 years
+    else:
+        tenure_group_val = 3  # Long: 8+ years
+
     # Encoding
-    card_type_map = {"Silver": 1, "Gold": 2, "Platinum": 3}
+    card_type_map = {"Silver": 1, "Gold": 2, "Platinum": 3, "Diamond": 4}
 
     # Create a feature dictionary that matches the model's training order
     feature_dict = {
@@ -118,6 +127,7 @@ def preprocess_features(inputs, scaler_obj):
         'Gender': 1 if inputs['gender'] == "Male" else 0,
         'Age': inputs['age'],
         'Tenure': inputs['tenure'],
+        'TenureGroup': tenure_group_val,
         'Balance': inputs['balance'],
         'NumOfProducts': inputs['num_products'],
         'HasCrCard': 1 if inputs['has_card'] == "Yes" else 0,
