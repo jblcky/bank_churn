@@ -3,4 +3,3 @@ numpy
 streamlit
 joblib
 scikit-learn
-random
