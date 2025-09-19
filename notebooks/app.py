@@ -3,8 +3,7 @@ import pandas as pd
 import joblib
 import numpy as np
 import random
-import plotly.graph_objects as go
-import plotly.express as px
+import matplotlib.pyplot as plt
 import shap
 
 # =========================
@@ -119,34 +118,23 @@ if st.sidebar.button("Predict Churn"):
     st.progress(float(prob))
 
     # =========================
-    # Circular gauge using Plotly
+    # Matplotlib horizontal gauge
     # =========================
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=prob*100,
-        domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': "Churn Probability (%)"},
-        gauge={
-            'axis': {'range': [0, 100]},
-            'bar': {'color': "#ff4d4d" if prob>0.5 else "#4caf50"},
-            'steps': [
-                {'range': [0, 50], 'color': '#4caf50'},
-                {'range': [50, 100], 'color': '#ff4d4d'}
-            ],
-            'threshold': {
-                'line': {'color': "black", 'width': 4},
-                'thickness': 0.75,
-                'value': 50
-            }
-        }
-    ))
-    st.plotly_chart(fig, use_container_width=True)
+    fig, ax = plt.subplots(figsize=(8,1.2))
+    ax.barh([0], [prob], color="#ff4d4d" if prob>0.5 else "#4caf50")
+    ax.set_xlim(0,1)
+    ax.set_yticks([])
+    ax.set_xlabel("Churn Probability")
+    ax.set_title("Churn Probability Gauge")
+    for i, v in enumerate([prob]):
+        ax.text(v + 0.02, i, f"{v:.2%}", color='black', va='center')
+    st.pyplot(fig)
+    plt.clf()
 
     # =========================
-    # SHAP Interactive Explanation using Plotly
+    # SHAP Explanation
     # =========================
     st.subheader("🔍 Feature Contribution (SHAP)")
-
     explainer = shap.LinearExplainer(model, features_scaled, feature_perturbation="correlation")
     shap_values = explainer.shap_values(features_scaled)
 
@@ -164,15 +152,10 @@ if st.sidebar.button("Predict Churn"):
         "SHAP Value": shap_vals_single
     }).sort_values(by="SHAP Value", key=abs, ascending=False)
 
-    fig_shap = px.bar(
-        shap_contrib,
-        x="SHAP Value",
-        y="Feature",
-        orientation="h",
-        text="SHAP Value",
-        color="SHAP Value",
-        color_continuous_scale=["#4caf50", "#ff4d4d"],
-        title="Feature Contribution to Churn Probability"
-    )
-    fig_shap.update_layout(yaxis=dict(autorange="reversed"), height=600)
-    st.plotly_chart(fig_shap, use_container_width=True)
+    fig2, ax2 = plt.subplots(figsize=(8,6))
+    ax2.barh(shap_contrib["Feature"], shap_contrib["SHAP Value"], color=['#ff4d4d' if x>0 else '#4caf50' for x in shap_contrib["SHAP Value"]])
+    ax2.set_xlabel("SHAP Value")
+    ax2.set_title("Feature Contribution to Churn Probability")
+    ax2.invert_yaxis()
+    st.pyplot(fig2)
+    plt.clf()
