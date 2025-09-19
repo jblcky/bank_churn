@@ -4,6 +4,3 @@ streamlit
 joblib
 scikit-learn
 random
-plotly
-matplotlib
-shap

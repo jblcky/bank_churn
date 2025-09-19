@@ -1,9 +1,7 @@
 import streamlit as st
-import pandas as pd
 import joblib
 import numpy as np
 import random
-import shap
 
 # =========================
 # Load model & scaler
@@ -127,37 +125,3 @@ if st.sidebar.button("Predict Churn"):
           </div>
         </div>
     """, unsafe_allow_html=True)
-
-    # =========================
-    # SHAP feature contribution
-    # =========================
-    st.subheader("🔍 Feature Contribution (SHAP)")
-    explainer = shap.LinearExplainer(model, features_scaled, feature_perturbation="correlation")
-    shap_values = explainer.shap_values(features_scaled)
-
-    feature_names = [
-        "Credit Score", "Gender", "Age", "Tenure", "Balance",
-        "Num Products", "Has Card", "Active Member", "Salary",
-        "Complain", "Satisfaction", "Points",
-        "BalancePerProduct", "BalanceToSalary", "Engagement",
-        "Tenure Duplicate", "Card Type", "Geo Germany", "Geo Spain"
-    ]
-
-    shap_vals_single = shap_values[0]  # single prediction
-    shap_contrib = pd.DataFrame({
-        "Feature": feature_names,
-        "SHAP Value": shap_vals_single
-    }).sort_values(by="SHAP Value", key=abs, ascending=False)
-
-    # Display SHAP as colored bars using HTML
-    for _, row in shap_contrib.iterrows():
-        color = "#ff4d4d" if row["SHAP Value"] > 0 else "#4caf50"
-        width = min(abs(row["SHAP Value"])*100, 100)  # scale to 0-100%
-        st.write(f"""
-            <div style="margin:2px 0;">
-                <strong>{row['Feature']}</strong>
-                <div style="width:{width}%; background:{color}; color:white; padding:4px; border-radius:5px;">
-                    {row['SHAP Value']:.4f}
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
